@@ -13,13 +13,14 @@ class Parser(input : Array[String]){
     list: List[Any]
   ) : List[List[Any]] = {
 
-    def aux(xs: List[Any], accum: List[List[Any]]) : List[List[Any]] = {
-      if (xs == Nil) {
+    @tailrec def aux(
+      xs: List[Any],
+      accum: List[List[Any]]
+    ) : List[List[Any]] = {
+      if (xs == Nil)
         accum.reverse
-      }
       else {
-        val header = xs.head
-        val rest = xs.tail
+        val header :: rest = xs
         val (section, residue) = rest.span(x => !isSeparator(x))
         aux(residue,  (header :: section) :: accum )
       }
