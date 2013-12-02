@@ -1,5 +1,6 @@
 package com.tyler.sensorCheck
 import scala.annotation.tailrec
+import scala.collection.mutable.ListBuffer
 
 
 class Parser(input : Array[String]){
@@ -17,17 +18,17 @@ class Parser(input : Array[String]){
 
     @tailrec def aux(
       xs: List[Any],
-      accum: List[List[Any]]
+      accum: ListBuffer[List[Any]]
     ) : List[List[Any]] = {
       if (xs == Nil)
-        accum.reverse
+        accum.toList
       else {
         val header :: rest = xs
         val (section, residue) = rest.span(x => !isSeparator(x))
-        aux(residue,  (header :: section) :: accum )
+        aux(residue,  accum += (header :: section))
       }
     }
-    aux(list, Nil)
+    aux(list, ListBuffer.empty[List[Any]])
   }
 }
 
