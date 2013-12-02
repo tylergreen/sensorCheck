@@ -8,21 +8,23 @@ class Parser(input : Array[String]){
 
   val sensorReadings = Array()
 
-
   def splitSections (
     isSeparator: Any => Boolean,
-    list: List[Any],
-    accum: List[List[Any]]
+    list: List[Any]
   ) : List[List[Any]] = {
-    if (list == Nil) {
-      accum.reverse
+
+    def aux(xs: List[Any], accum: List[List[Any]]) : List[List[Any]] = {
+      if (xs == Nil) {
+        accum.reverse
+      }
+      else {
+        val header = xs.head
+        val rest = xs.tail
+        val (section, residue) = rest.span(x => !isSeparator(x))
+        aux(residue,  (header :: section) :: accum )
+      }
     }
-    else {
-      val header = list.head
-      val rest = list.tail
-      val (section, residue) = rest.span(x => !isSeparator(x))
-      splitSections(isSeparator, residue,  (header :: section) :: accum )
-    }
+    aux(list, Nil)
   }
-  
 }
+

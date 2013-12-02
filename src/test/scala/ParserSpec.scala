@@ -21,11 +21,11 @@ class ParserSpec extends FlatSpec {
   it should "be able to split a list into sections" in {
     val input = List("a", "1", "2", "a", "3", "4", "a", "5", "6")
     val result = List(List("a", "1", "2"), List("a", "3", "4"), List("a", "5", "6"))
-    assert(result === parser.splitSections({_ == "a"}, input, Nil))
+    assert(result === parser.splitSections({_ == "a"}, input))
 
     val input2 = List(100, 1, 2, 100, 3, 4, 100, 5, 6)
     val result2 = List(List(100, 1, 2), List(100, 3, 4), List(100, 5, 6))
-    assert(result2 === parser.splitSections({_ == 100}, input2, Nil))
+    assert(result2 === parser.splitSections({_ == 100}, input2))
   }
 
 
