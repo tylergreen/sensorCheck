@@ -8,6 +8,8 @@ class Parser(input : Array[String]){
 
   val sensorReadings = Array()
 
+  // splits a list into sections
+  // sections consist of a header (defined by isSeparator) and all the elements until the next header
   def splitSections (
     isSeparator: Any => Boolean,
     list: List[Any]
