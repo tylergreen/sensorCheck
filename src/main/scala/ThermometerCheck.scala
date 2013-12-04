@@ -7,8 +7,7 @@ object ThermometerCheck {
     val mean = new Mean().evaluate(readings)
     val stdDev = new StandardDeviation().evaluate(readings)
     val tolerance = math.abs(reference - mean)
-    println("tol " + tolerance)
-    println("stdDev " + stdDev)
+
     if  (tolerance < 0.5 && stdDev < 3){
       "UltraPrecise"
     }
