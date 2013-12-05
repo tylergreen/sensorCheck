@@ -3,6 +3,7 @@ import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation
 import org.apache.commons.math3.stat.descriptive.moment.Mean
 
 abstract class Sensor{
+  def name: String
   def classify: String
 }
 case class Thermometer(
