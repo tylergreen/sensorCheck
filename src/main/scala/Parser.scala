@@ -4,13 +4,15 @@ import scala.collection.mutable.ListBuffer
 import com.tyler.sensorCheck.Input
 
 class Parser(input : Array[String]){
-  var referenceHumidity = input.head.split(' ')(2).toDouble
-  var referenceTemperature = input.head.split(' ')(1).toDouble
+  
+  var referenceLine = input(0)
+  var referenceHumidity = referenceLine.split(' ')(2).toDouble
+  var referenceTemperature = referenceLine.split(' ')(1).toDouble
 
-  val referenceLine = input(0)
-  val readings = input.drop(1)
-  val sensorNameColumn = 1
-  val sensors = readings
+  
+  var rawReadings = input.drop(1)
+  var sensorNameColumn = 1
+  var sensors = rawReadings
     .map((line: String) => line.split(" "))
     .groupBy(_(sensorNameColumn))
     .values.map(parseSection(_))
@@ -27,7 +29,8 @@ class Parser(input : Array[String]){
     }
   }
 
-  // splits a list into sections
+  // No longer used, but I'm keeping it around for reference
+  // utility method that splits a list into sections
   // sections consist of a header (defined by isSeparator) and all the elements until the next header
   def splitSections (
     isSeparator: Any => Boolean,
