@@ -19,11 +19,11 @@ class Parser(input : Array[String]){
   def parseSection(section : Array[Array[String]]) : Sensor = {
     val Array(sensorType, sensorName) = section(0)
     val readings = section.drop(1).map(line =>
-      Map("time" -> line(0), "value" -> line(2).toDouble)
+      (line(0), line(2).toDouble)
     )
     sensorType match {
-      case "thermometer" => Thermometer(sensorName, readings)
-      case "humidity" => Hygrometer(sensorName, readings)
+      case "thermometer" => Thermometer(sensorName, referenceTemperature, readings)
+      case "humidity" => Hygrometer(sensorName, referenceHumidity, readings)
     }
   }
 

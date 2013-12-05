@@ -38,14 +38,14 @@ class ParserSpec extends FlatSpec with Matchers {
     parser.sensorReadings(0) shouldBe a [Hygrometer]
     assert{
       parser.sensorReadings(0) match {
-        case Hygrometer("hum-1", _) => true
+        case Hygrometer("hum-1", 45.0, _) => true
         case _ => fail
       }
      }
 
     assert{
       parser.sensorReadings(1) match{
-        case Thermometer("temp-2", _) => true
+        case Thermometer("temp-2", 70.0, _) => true
         case _ => fail
       }
     }
