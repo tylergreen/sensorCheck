@@ -1,9 +1,11 @@
-import org.scalatest.FlatSpec
+import org.scalatest._
 import com.tyler.sensorCheck.Input
 import com.tyler.sensorCheck.Parser
+import com.tyler.sensorCheck.Sensor
+import com.tyler.sensorCheck.Thermometer
+import com.tyler.sensorCheck.Hygrometer
 
-
-class ParserSpec extends FlatSpec {
+class ParserSpec extends FlatSpec with Matchers {
   val parser = new Parser(Input.lines)
   
   "A Parser" should "know the reference humidity" in {
@@ -28,23 +30,25 @@ class ParserSpec extends FlatSpec {
     assert(result2 === parser.splitSections({_ == 100}, input2))
   }
 
+  it should "separate the readings by sensor" in {
+    assertResult(4){
+      parser.sensorReadings.length
+    }
+    
+    parser.sensorReadings(0) shouldBe a [Hygrometer]
+    assert{
+      parser.sensorReadings(0) match {
+        case Hygrometer("hum-1", _) => true
+        case _ => fail
+      }
+     }
 
-  // it should "separate the readings by sensor" in {
-  //   assertResult(4){
-  //     parser.sensorReadings.length
-  //   }
-  //   assertResult("thermometer temp-1") {
-  //     parser.sensorReadings(0)(0)
-  //   }
-  //   assertResult("thermometer temp-2") {
-  //     parser.sensorReadings(1)(0)
-  //   }
-  //   assertResult("thermometer temp-2") {
-  //     parser.sensorReadings(2)(0)
-  //   }
-  //   assertResult("humidity hum-2") {
-  //     parser.sensorReadings(3)(0)
-  //   }
-  // }
+    assert{
+      parser.sensorReadings(1) match{
+        case Thermometer("temp-2", _) => true
+        case _ => fail
+      }
+    }
+  }
 
 }

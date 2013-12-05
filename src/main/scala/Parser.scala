@@ -1,13 +1,31 @@
 package com.tyler.sensorCheck
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
-
+import com.tyler.sensorCheck.Input
 
 class Parser(input : Array[String]){
-  val referenceHumidity = input(0).split(' ')(2).toDouble
-  val referenceTemperature = input(0).split(' ')(1).toDouble
+  val referenceHumidity = input.head.split(' ')(2).toDouble
+  val referenceTemperature = input.head.split(' ')(1).toDouble
 
-  val sensorReadings = Array()
+  val referenceLine = input(0)
+  val readings = input.drop(1)
+  val sensorNameColumn = 1
+  val sensorReadings = readings
+    .map((x:String) => x.split(" "))
+    .groupBy(_(sensorNameColumn))
+    .values.map(parseSection(_))
+    .toArray
+
+  def parseSection(section : Array[Array[String]]) : Sensor = {
+    val Array(sensorType, sensorName) = section(0)
+    val readings = section.drop(1).map(line =>
+      Map("time" -> line(0), "value" -> line(2).toDouble)
+    )
+    sensorType match {
+      case "thermometer" => Thermometer(sensorName, readings)
+      case "humidity" => Hygrometer(sensorName, readings)
+    }
+  }
 
   // splits a list into sections
   // sections consist of a header (defined by isSeparator) and all the elements until the next header
@@ -30,5 +48,6 @@ class Parser(input : Array[String]){
     }
     aux(list, ListBuffer.empty[List[Any]])
   }
+
 }
 
