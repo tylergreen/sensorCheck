@@ -4,14 +4,14 @@ import scala.collection.mutable.ListBuffer
 import com.tyler.sensorCheck.Input
 
 class Parser(input : Array[String]){
-  val referenceHumidity = input.head.split(' ')(2).toDouble
-  val referenceTemperature = input.head.split(' ')(1).toDouble
+  var referenceHumidity = input.head.split(' ')(2).toDouble
+  var referenceTemperature = input.head.split(' ')(1).toDouble
 
   val referenceLine = input(0)
   val readings = input.drop(1)
   val sensorNameColumn = 1
-  val sensorReadings = readings
-    .map((x:String) => x.split(" "))
+  val sensors = readings
+    .map((line: String) => line.split(" "))
     .groupBy(_(sensorNameColumn))
     .values.map(parseSection(_))
     .toArray

@@ -32,19 +32,19 @@ class ParserSpec extends FlatSpec with Matchers {
 
   it should "separate the readings by sensor" in {
     assertResult(4){
-      parser.sensorReadings.length
+      parser.sensors.length
     }
     
-    parser.sensorReadings(0) shouldBe a [Hygrometer]
+    parser.sensors(0) shouldBe a [Hygrometer]
     assert{
-      parser.sensorReadings(0) match {
+      parser.sensors(0) match {
         case Hygrometer("hum-1", 45.0, _) => true
         case _ => fail
       }
      }
 
     assert{
-      parser.sensorReadings(1) match{
+      parser.sensors(1) match{
         case Thermometer("temp-2", 70.0, _) => true
         case _ => fail
       }
