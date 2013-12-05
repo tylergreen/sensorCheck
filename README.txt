@@ -3,10 +3,10 @@
 
 * How to Run
 
-$ cat somefile > sbt run
+$ sbt run < someProperLogFile
 
-for convience, I included a testInput  
-$ cat testInput.txt | sbt run
+for convenience, I included a test input file
+$ sbt run < ./testInput.txt
 
 * how to run tests
 
