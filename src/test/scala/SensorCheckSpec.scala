@@ -1,27 +1,10 @@
 import org.scalatest.FlatSpec
-import com.tyler.sensorCheck.Complex
-import com.tyler.sensorCheck.Monkey
+import com.tyler.sensorCheck.SensorCheck
 
 class SensorCheckSpec extends FlatSpec {
-  "A Complex" should "have real and imaginary parts" in {
-    val c1 = new Complex(20, 4)
-    assert(c1.re == 20)
-    assert(c1.im == 4)
+  "SensorCheck" should "classify vals" in {
 
   }
-
-  it should "have more tests" in {
-    val c1 = new Complex(20, 4)
-    assert((c1.re + c1.im) == 24)
-  }
-
-  it should "be armed" in {
-    val m = Monkey
-    assert(m.arm === "monk-arm")
-    m.arm = "monk-leg"
-    assert(m.arm === "monk-leg")
-  }
-
 
 //   "A SensorCheck" should "classify vals" in {
 //     val input = "reference 70.0 45.0
