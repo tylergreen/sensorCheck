@@ -4,12 +4,12 @@ import com.tyler.sensorCheck.Parser
 import com.tyler.sensorCheck.Sensor
 
 object SensorCheck{
-  def main(args: Array[String]){
+  def Main(args: Array[String]){
     println("start")
-    var lines = io.Source.stdin.getLines
+    val lines = io.Source.stdin.getLines
     //var sensorLog = lines.mkString("\n")
-    var parser = new Parser(lines.toArray) //change parser to take an iterator
-    var output = parser.sensors.map(x => x.name + ": " + x.classify)
+    val parser = new Parser(lines.toArray) //change parser to take an iterator
+    val output = parser.sensors.map(x => x.name + ": " + x.classify)
     for (ln <- output) println(ln)
   }
   // def checkReadings(
