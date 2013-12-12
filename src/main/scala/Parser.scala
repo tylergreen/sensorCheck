@@ -1,24 +1,23 @@
 package com.tyler.sensorCheck
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
-import com.tyler.sensorCheck.Input
 
 class Parser(input : Array[String]){
   
-  var referenceLine = input(0)
-  var referenceHumidity = referenceLine.split(' ')(2).toDouble
-  var referenceTemperature = referenceLine.split(' ')(1).toDouble
+  private val referenceLine = input(0)
+  private val referenceHumidity = referenceLine.split(' ')(2).toDouble
+  private val referenceTemperature = referenceLine.split(' ')(1).toDouble
 
   
-  var rawReadings = input.drop(1)
-  var sensorNameColumn = 1
-  var sensors = rawReadings
+  private val rawReadings = input.drop(1)
+  private val sensorNameColumn = 1
+  val sensors = rawReadings
     .map((line: String) => line.split(" "))
     .groupBy(_(sensorNameColumn))
     .values.map(parseSection(_))
     .toArray
 
-  def parseSection(section : Array[Array[String]]) : Sensor = {
+  private def parseSection(section : Array[Array[String]]) : Sensor = {
     val Array(sensorType, sensorName) = section(0)
     val readings = section.drop(1).map(line =>
       (line(0), line(2).toDouble)
