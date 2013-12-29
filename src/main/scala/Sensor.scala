@@ -1,4 +1,5 @@
 package com.tyler.sensorCheck
+import sensorCheck._
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation
 import org.apache.commons.math3.stat.descriptive.moment.Mean
 
@@ -6,11 +7,13 @@ abstract class Sensor{
   def name: String
   def classify: String
 }
+
 case class Thermometer(
   name: String,
   reference: Double,
-  readings :Array[ (String, Double)]
+  readings :Array[ (TimeStamp, Double)]
 ) extends Sensor {
+  
   def classify: String = {
     val readingValues = readings.map(_._2)
     val mean = new Mean().evaluate(readingValues)
@@ -32,8 +35,9 @@ case class Thermometer(
 case class Hygrometer(
   name: String,
   reference: Double,
-  readings: Array[ (String, Double)]
+  readings: Array[ (TimeStamp, Double)]
 ) extends Sensor {
+  
   def classify :String = {
     val outlier = readings.find(reading => math.abs(reading._2 - reference) >= 1)
     if (outlier == None)
@@ -41,7 +45,6 @@ case class Hygrometer(
     else
       "discard"
   }
-
    
 }
 

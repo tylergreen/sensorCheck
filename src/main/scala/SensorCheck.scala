@@ -3,7 +3,7 @@ import com.tyler.sensorCheck.Input
 import com.tyler.sensorCheck.Parser
 import com.tyler.sensorCheck.Sensor
 
-object SensorCheck{
+object Monkey{
   def main(args: Array[String]){
     println("start")
     var lines = io.Source.stdin.getLines
