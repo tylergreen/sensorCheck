@@ -19,8 +19,8 @@ class PrimitiveParser extends RegexParsers {
 }
 
 object LineParser extends PrimitiveParser {
-  def reference: Parser[InputLine] = ("reference " ~ number ~ number) ^^ {
-    case "reference " ~ temperature ~ humidity => Reference(temperature, humidity)
+  def reference: Parser[InputLine] = ("reference" ~ number ~ number) ^^ {
+    case "reference" ~ temperature ~ humidity => Reference(temperature, humidity)
   }
 
   def thermometerDeclaration: Parser[InputLine] = "thermometer " ~ identifier ^^ { 
