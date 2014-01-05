@@ -1,9 +1,37 @@
 package com.tyler.sensorCheck
 import com.tyler.sensorCheck.Input
-import com.tyler.sensorCheck.Parser
+import com.tyler.sensorCheck.LineParser
 import com.tyler.sensorCheck.Sensor
 
-object Monkey{
+import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation
+import org.apache.commons.math3.stat.descriptive.moment.Mean
+
+
+object SensorCheck {
+  def run(input: String) : List[String] = {
+    val lines = input.split('\n').map(LineParser.parse(_))
+    val Reference(temp, hum) = lines(0)
+    val ThermometerDeclaration(name) = lines(1)
+    val readings = lines.drop(2).map{case Reading(_, _, r) => r }
+    val stdDev = new StandardDeviation().evaluate(readings)
+    val mean = new Mean().evaluate(readings)
+    val tolerance = math.abs(temp - mean)
+    val rating = 
+      if  (tolerance < 0.5 && stdDev < 3){
+        "ultra precise"
+      }
+      else if (tolerance < 0.5 && stdDev < 5){
+        "very precise"
+      }
+      else {
+        "precise"
+      }
+
+    List(name + ": " + rating)
+  }
+
+
+
   def main(args: Array[String]){
     println("start")
     var lines = io.Source.stdin.getLines
