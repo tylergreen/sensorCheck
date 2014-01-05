@@ -65,5 +65,18 @@ humidity hum-2
     }
   }
 
+it should "classify multiple sensors" in {
+    val testInput = 
+      """reference 70.0 45.0
+thermometer temp-2
+2007-04-05T22:02 temp-2 70.1
+humidity hum-1
+2007-04-05T22:04 hum-1 45.2
+"""
+  assertResult(List("temp-2: ultra precise", "hum-1: OK")){
+    SensorCheck.run(testInput)
+  }
+}
+
 
 }
