@@ -52,4 +52,18 @@ humidity hum-1
       SensorCheck.run(testInput)
     }
   }
+
+it should "classify 'discard' hygrometers" in {
+       val testInput = 
+      """reference 70.0 45.0
+humidity hum-2
+2007-04-05T22:04 hum-2 44.4
+2007-04-05T22:08 hum-2 42.1
+""" 
+    assertResult(List("hum-2: discard")){
+      SensorCheck.run(testInput)
+    }
+  }
+
+
 }
