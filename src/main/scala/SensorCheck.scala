@@ -10,14 +10,20 @@ import org.apache.commons.math3.stat.descriptive.moment.Mean
 object SensorCheck {
   def run(input: String) : List[String] = {
     val lines = input.split('\n').map(LineParser.parse(_))
-    val Reference(temp, hum) = lines(0)
-    val ThermometerDeclaration(name) = lines(1)
-    val readings = lines.drop(2).map{case Reading(_, _, r) => r }
-    val stdDev = new StandardDeviation().evaluate(readings)
-    val mean = new Mean().evaluate(readings)
-    val tolerance = math.abs(temp - mean)
+    val Reference(referenceTemp, referenceHum) = lines(0)
+    val readings : Seq[Double] = lines.drop(2).map{case Reading(_, _, r) => r }
+    lines(1) match {
+      case ThermometerDeclaration(name) => classifyThermometer(name, referenceTemp, readings)
+      case HygrometerDeclaration(name) => classifyHygrometer(name, referenceHum, readings)
+    }
+  }
+
+  def classifyThermometer(name : String, referenceTemp : Double, readings : Seq[Double]) : List[String] = {
+    val stdDev = new StandardDeviation().evaluate(readings.toArray)
+    val mean = new Mean().evaluate(readings.toArray)
+    val tolerance = math.abs(referenceTemp - mean)
     val rating = 
-      if  (tolerance < 0.5 && stdDev < 3){
+      if (tolerance < 0.5 && stdDev < 3){
         "ultra precise"
       }
       else if (tolerance < 0.5 && stdDev < 5){
@@ -26,11 +32,16 @@ object SensorCheck {
       else {
         "precise"
       }
-
     List(name + ": " + rating)
   }
 
-
+  def classifyHygrometer(name : String, referenceHum : Double, readings : Seq[Double] ) : List[String] = {
+    val tolerance = 1
+    if (readings.forall(reading => tolerance >= math.abs(reading - referenceHum)))
+      List(name + ": OK")
+    else
+      List(name + ": discard")
+  }
 
   def main(args: Array[String]){
     println("start")

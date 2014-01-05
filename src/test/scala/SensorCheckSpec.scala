@@ -39,4 +39,17 @@ thermometer temp-1
       SensorCheck.run(testInput)
     }
   }
+
+  it should "classify 'ok' hygrometers" in {
+       val testInput = 
+      """reference 70.0 45.0
+humidity hum-1
+2007-04-05T22:04 hum-1 45.2
+2007-04-05T22:05 hum-1 45.3
+2007-04-05T22:06 hum-1 45.1
+""" 
+    assertResult(List("hum-1: OK")){
+      SensorCheck.run(testInput)
+    }
+  }
 }
