@@ -26,4 +26,17 @@ thermometer temp-1
       SensorCheck.run(testInput)
     }
   }
+
+  it should "classify 'precise' thermometers" in {
+    val testInput = 
+      """reference 70.0 45.0
+thermometer temp-1
+2007-04-05T22:00 temp-1 1000.0
+2007-04-05T22:02 temp-1 70.0
+2007-04-05T22:02 temp-1 20.0
+"""
+    assertResult(List("temp-1: precise")){
+      SensorCheck.run(testInput)
+    }
+  }
 }
