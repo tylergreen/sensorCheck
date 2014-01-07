@@ -2,9 +2,6 @@ package com.tyler.sensorCheck
 import com.tyler.sensorCheck.LineParser
 import com.tyler.sensorCheck.Sensor
 
-import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation
-import org.apache.commons.math3.stat.descriptive.moment.Mean
-
 object SensorCheck {
 
   case class State(currentSensor : Option[Sensor], sensorName : String, results : List[String])
@@ -40,14 +37,6 @@ object SensorCheck {
 
     ((lastId + ": " + lastSensor.get.classify) :: resultsList).reverse
 
-  }
-
-  def classifyHygrometer(name : String, referenceHum : Double, readings : Seq[Double] ) : String = {
-    val tolerance = 1
-    if (readings.forall(reading => tolerance >= math.abs(reading - referenceHum)))
-      name + ": OK"
-    else
-      name + ": discard"
   }
 
 }
