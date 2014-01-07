@@ -40,6 +40,21 @@ thermometer temp-1
     }
   }
 
+  it should "classify multiple thermometers" in {
+    val testInput = 
+      """reference 70.0 45.0
+thermometer temp-1
+2007-04-05T22:00 temp-1 1000.0
+thermometer temp-2
+2007-04-05T22:02 temp-2 0.0
+thermometer temp-3
+2007-04-05T22:02 temp-3 20.0
+"""
+    assertResult(List("temp-1: precise", "temp-2: precise", "temp-3: precise")){
+      SensorCheck.run(testInput)
+    }
+  }
+
   it should "classify 'ok' hygrometers" in {
        val testInput = 
       """reference 70.0 45.0

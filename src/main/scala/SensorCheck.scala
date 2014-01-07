@@ -20,20 +20,23 @@ object SensorCheck {
 //    val stdDev = new StandardDeviation().evaluate(readings.toArray)
 //    val mean = new Mean().evaluate(readings.Toarray)
 
-    val check = new ThermometerCheck(referenceTemp)
-    var name1 = ""
-    lines.tail.foldLeft(List()){ (state, line) =>
+    val ThermometerDeclaration(name1) = lines(1)
+    val resultsList1 : List[String] = List()
+    val initialState = (new ThermometerCheck(referenceTemp), name1,  resultsList1)
+    val (lastSensor, lastId, resultsList : List[String]) = lines.drop(2).foldLeft(initialState){ case ((sensor, name, results), line) =>
       line match {
         case ThermometerDeclaration(sensorId) => 
-          name1 = sensorId
-          state
+          val new_sensor = new ThermometerCheck(referenceTemp)
+          (new_sensor, sensorId, (name + ": " + sensor.classify.format) :: results)
         case Reading(_,_,quantity) => 
-          check.add(quantity)
-          state
+          sensor.add(quantity)
+          (sensor, name, results)
       }
     }
 
-    List(name1 + ": " + check.classify.format)
+    ((lastId + ": " + lastSensor.classify.format) :: resultsList).reverse
+
+
 
 
 
