@@ -19,7 +19,9 @@ object SensorCheck {
 
   def run(input: String) : List[String] = {
 
-    val lines = Process.emitAll(input.split('\n').map(LineParser.parse(_))).toSource ++ Process.constant(Eof()).take(1)
+    val lines = Process.emitAll(input.split('\n').
+      map(LineParser.parse(_))).toSource.
+      append(Process.emit(Eof()).toSource)
 
     val initialState = Process.state(State(None, None, None, None))
 
