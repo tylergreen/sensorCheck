@@ -3,10 +3,13 @@ package com.tyler.sensorCheck
 import scala.util.parsing.combinator._
 import sensorCheck._
 
+abstract class SensorType 
+case class Thermometer(name : String) extends SensorType
+case class Hygrometer(name : String) extends SensorType
+
 abstract class InputLine
 case class Reference(temperature: Double, humidity: Double) extends InputLine
-case class ThermometerDeclaration(sensorName: String) extends InputLine
-case class HygrometerDeclaration(sensorName: String) extends InputLine
+case class SensorDeclaration(sensor: SensorType) extends InputLine
 case class Reading(sensorName: String, time: TimeStamp, quantity: Double) extends InputLine
 case class Unknown(line: String) extends InputLine
 
@@ -23,12 +26,9 @@ object LineParser extends PrimitiveParser {
     case "reference" ~ temperature ~ humidity => Reference(temperature, humidity)
   }
 
-  def thermometerDeclaration: Parser[InputLine] = "thermometer" ~ identifier ^^ { 
-    case "thermometer" ~ sensorId => ThermometerDeclaration(sensorId)
-  }
-  
-  def hygrometerDeclaration: Parser[InputLine] = "humidity" ~ identifier ^^ {
-    case "humidity" ~ sensorId => HygrometerDeclaration(sensorId)
+  def sensorDeclaration: Parser[InputLine] = ("thermometer" | "humidity") ~ identifier ^^ { 
+    case "thermometer" ~ sensorId => SensorDeclaration(Thermometer(sensorId))
+    case "humidity" ~ sensorId => SensorDeclaration(Hygrometer(sensorId))
   }
   
   def reading: Parser[InputLine] = timestamp ~ identifier ~ number ^^ {
@@ -37,7 +37,7 @@ object LineParser extends PrimitiveParser {
 
   def unknown : Parser[InputLine] = """.*""".r ^^ { Unknown(_) }
      
-  def line: Parser[InputLine] = reference | thermometerDeclaration | hygrometerDeclaration | reading | unknown
+  def line: Parser[InputLine] = reference | sensorDeclaration | reading | unknown
 
   def parse(str: String) : InputLine = {
     parseAll(line, str).get
