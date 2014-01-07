@@ -16,19 +16,41 @@ object SensorCheck {
     val lines = input.split('\n').map(LineParser.parse(_))
     val Reference(referenceTemp, referenceHum) = lines(0)
     //val readings : Seq[Double] = lines.drop(2).map{case Reading(_, _, r) => r }
-    val sensorSections = splitSections({
-      case ThermometerDeclaration(_) => true
-      case HygrometerDeclaration(_) => true
-      case _ => false
-    }, lines.drop(1).toList)
 
-    sensorSections.map{ case sensorDeclaration :: readings  =>
-      val quantities = readings.map{ case Reading(_,_,quantity) => quantity }
-      sensorDeclaration match {
-        case ThermometerDeclaration(name) => classifyThermometer(name, referenceTemp, quantities)
-        case HygrometerDeclaration(name) => classifyHygrometer(name, referenceHum, quantities)
+//    val stdDev = new StandardDeviation().evaluate(readings.toArray)
+//    val mean = new Mean().evaluate(readings.Toarray)
+
+    val check = new ThermometerCheck(referenceTemp)
+    var name1 = ""
+    lines.tail.foldLeft(List()){ (state, line) =>
+      line match {
+        case ThermometerDeclaration(sensorId) => 
+          name1 = sensorId
+          state
+        case Reading(_,_,quantity) => 
+          check.add(quantity)
+          state
       }
     }
+
+    List(name1 + ": " + check.classify.format)
+
+
+
+    //  }
+    // val sensorSections = splitSections({
+    //   case ThermometerDeclaration(_) => true
+    //   case HygrometerDeclaration(_) => true
+    //   case _ => false
+    // }, lines.drop(1).toList)
+
+    // sensorSections.map{ case sensorDeclaration :: readings  =>
+    //   val quantities = readings.map{ case Reading(_,_,quantity) => quantity }
+    //   sensorDeclaration match {
+    //     case ThermometerDeclaration(name) => classifyThermometer(name, referenceTemp, quantities)
+    //     case HygrometerDeclaration(name) => classifyHygrometer(name, referenceHum, quantities)
+    //   }
+    // }
   }
 
   def classifyThermometer(name : String, referenceTemp : Double, readings : Seq[Double]) : String = {
