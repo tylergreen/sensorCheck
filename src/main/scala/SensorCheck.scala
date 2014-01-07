@@ -3,43 +3,64 @@ import scala.util.control.Exception._
 import com.tyler.sensorCheck.LineParser
 import com.tyler.sensorCheck.Sensor
 
+import scalaz.concurrent.Task
+import scalaz._
+import scalaz.stream._
+
+import Process._
+
 object SensorCheck {
 
-  case class State(currentSensor : Sensor, sensorName : String, results : List[String])
+  case class State(
+    currentSensor : Option[Sensor],
+    sensorName : Option[String],
+    referenceTemp: Option[Double],
+    referenceHum: Option[Double],
+    results : List[String])
 
   def run(input: String) : List[String] = {
-    
+
     val lines = input.split('\n').map(LineParser.parse(_))
-    val Reference(referenceTemp, referenceHum) = lines(0)
 
-    val firstDeclaration = lines(1)
-    val initialState = firstDeclaration match {
-      case SensorDeclaration(Thermometer(name)) =>
-        State(new ThermometerCheck(referenceTemp), name, List() : List[String])
-      case SensorDeclaration(Hygrometer(name)) =>
-        State(new HygrometerCheck(referenceHum), name, List() : List[String])
-      case _ => throw new RuntimeException("Second line must be a SensorDeclaration")
-    }
+    val initialState = State(None, None, None, None, List() : List[String])
 
-    val logBody = lines.drop(2)
-    val State(lastSensor, lastId, resultsList : List[String]) = logBody.foldLeft(initialState){ 
-      case (State(sensor, name, results), line) =>
-        line match {
-          case SensorDeclaration(Thermometer(newId)) =>
-            val newSensor = new ThermometerCheck(referenceTemp)
-            State(newSensor, newId, (name + ": " + sensor.classify) :: results)
-          case SensorDeclaration(Hygrometer(newId)) =>
-            val newSensor = new HygrometerCheck(referenceHum)
-            State(newSensor, newId, (name + ": " + sensor.classify) :: results)
-          case Reading(_,_,quantity) =>
-            sensor.add(quantity)
-            State(sensor, name, results)
-          case Unknown(line) =>
-            throw new RuntimeException("unknown line: " + line)
+    val State(lastSensor, lastId, _, _, resultsList : List[String]) = lines.foldLeft(initialState){ 
+      case (state, line) =>
+        state match {
+          case State(None, None, None, None, results) =>
+            line match {
+              case Reference(referenceTemperature, referenceHumidity) =>
+                State(None, None, Some(referenceTemperature), Some(referenceHumidity), results)
+              case _ => throw new RuntimeException("First line must be Reference")
+            }
+          case State(None, None, rt@Some(referenceTemp), rh@Some(referenceHum), results) =>
+            line match {
+              case SensorDeclaration(Hygrometer(newId)) =>
+                val newSensor = new HygrometerCheck(referenceHum)
+                State(Some(newSensor), Some(newId), rt, rh, results)
+              case SensorDeclaration(Thermometer(newId)) =>
+                val newSensor = new ThermometerCheck(referenceTemp)
+                State(Some(newSensor), Some(newId), rt, rh, results)
+              case _ => throw new RuntimeException("Second line must be declare a sensor")
+            }
+          case State(Some(sensor), Some(name), rt@Some(referenceTemp), rh@Some(referenceHum), results) =>
+            line match {
+              case SensorDeclaration(Thermometer(newId)) =>
+                val newSensor = new ThermometerCheck(referenceTemp)
+                State(Some(newSensor), Some(newId), rt, rh, (name + ": " + sensor.classify) :: results)
+              case SensorDeclaration(Hygrometer(newId)) =>
+                val newSensor = new HygrometerCheck(referenceHum)
+                State(Some(newSensor), Some(newId), rt, rh, (name + ": " + sensor.classify) :: results)
+              case Reading(_,_,quantity) =>
+                sensor.add(quantity)
+                State(Some(sensor), Some(name), rt, rh, results)
+              case Unknown(line) =>
+                throw new RuntimeException("unknown line: " + line)
+            }
         }
     }
 
-    ((lastId + ": " + lastSensor.classify) :: resultsList).reverse
+    ((lastId.get + ": " + lastSensor.get.classify) :: resultsList).reverse
 
   }
 
