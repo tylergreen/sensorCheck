@@ -17,15 +17,11 @@ object SensorCheck {
     referenceTemp: Option[Double],
     referenceHum: Option[Double])
 
-  def run(input: String) : List[String] = {
-
-    val lines = Process.emitAll(input.split('\n').
-      map(LineParser.parse(_))).toSource.
-      append(Process.emit(Eof()).toSource)
+  def run(input: Process[Task, InputLine]) : Process[Task, String] = {
 
     val initialState = Process.state(State(None, None, None, None))
 
-    lines.zip(initialState).flatMap{ case(line, (getState, setState)) =>
+    input.zip(initialState).flatMap{ case(line, (getState, setState)) =>
       getState match {
         case s@State(None, None, None, None) =>
           val newState = handleFirstLine(s, line)
@@ -40,7 +36,7 @@ object SensorCheck {
             case None => eval(setState(newState)).drain
           }
       }
-    }.runLog.run.toList
+    }
   }
 
 
