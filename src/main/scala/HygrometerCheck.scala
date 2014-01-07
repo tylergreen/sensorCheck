@@ -1,12 +1,23 @@
 package com.tyler.sensorCheck
 
-object HygrometerCheck {
-  def classify(reference: Double, readings : Array[Double]) : String = {
-    val outlier = readings.find(reading => math.abs(reading - reference) >= 1)
-    if (outlier == None)
-      "ok"
-    else 
-      "discard"
+abstract class HygrometerRating {
+  val format : String
+}
+case object Ok extends HygrometerRating {
+  val format = "ok"
+}
+case object Discard extends HygrometerRating {
+  val format = "discard"
+}
+
+class HygrometerCheck(referenceHumidity : Double) extends Sensor { 
+  private var rating : String = "OK"
+  def add(reading : Double) {
+    if (math.abs(reading - referenceHumidity) >= 1)
+      rating = "discard"
   }
 
+  def classify : String = {
+    rating
+  }
 }

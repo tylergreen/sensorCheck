@@ -15,7 +15,7 @@ case object Precise extends ThermometerRating {
   val format = "precise"
 }
 
-class ThermometerCheck(referenceTemperature: Double) {
+class ThermometerCheck(referenceTemperature: Double) extends Sensor {
   val mean = new Mean()
   val stdDev = new StandardDeviation()
 
@@ -24,18 +24,19 @@ class ThermometerCheck(referenceTemperature: Double) {
     stdDev.increment(reading)
   }
 
-  def classify: ThermometerRating = {
+  def classify: String = {
     val tolerance = math.abs(referenceTemperature - mean.getResult)
 
     val stdDevResult = stdDev.getResult
     if  (tolerance < 0.5 && stdDevResult < 3){
-      UltraPrecise
+      //UltraPrecise
+      "ultra precise"
     }
     else if (tolerance < 0.5 && stdDevResult < 5){
-      VeryPrecise
+      "very precise"
     }
     else {
-      Precise
+      "precise"
     }
   }
 }
