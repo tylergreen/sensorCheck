@@ -10,25 +10,23 @@ import scalaz.stream._
 import Process._
 
 object SensorCheck {
-
   case class State(
     currentSensor : Option[Sensor],
-    sensorName : Option[String],
     reference : Option[Reference])
 
   def run(input: Process[Task, InputLine]) : Process[Task, String] = {
 
-    val initialState = Process.state(State(None, None, None))
+    val initialState = Process.state(State(None, None))
 
     input.zip(initialState).flatMap{ case(line, (getState, setState)) =>
       getState match {
-        case s@State(None, None, None) =>
+        case s@State(None, None) =>
           val newState = handleFirstLine(s, line)
           eval(setState(newState)).drain
-        case s@State(None, None, Some(_)) =>
+        case s@State(None, Some(_)) =>
           val newState = handleSecondLine(s,line)
           eval(setState(newState)).drain
-        case s@State(Some(_), Some(_), Some(_)) =>
+        case s@State(Some(_), Some(_)) =>
           val (newState, output) = handleRestLines(s, line)
             output match {
             case Some(result) => eval(setState(newState)).drain ++ emit(result)
@@ -38,13 +36,12 @@ object SensorCheck {
     }
   }
 
-
   private def handleFirstLine(state : State, line : InputLine) : State = {
     state match {
-      case State(None, None, None) =>
+      case State(None, None) =>
         line match {
           case r@Reference(referenceTemperature, referenceHumidity) =>
-            State(None, None, Some(r))
+            State(None, Some(r))
           case _ => throw new RuntimeException("First line must be Reference")
         }
     }
@@ -52,14 +49,14 @@ object SensorCheck {
 
   private def handleSecondLine(state : State, line : InputLine) : State = {
     state match {
-      case State(None, None, ref@Some(Reference(referenceTemp, referenceHum))) =>
+      case State(None, ref@Some(Reference(referenceTemp, referenceHum))) =>
         line match {
-          case SensorDeclaration(Hygrometer(newId)) =>
-            val newSensor = new HygrometerCheck(referenceHum)
-            State(Some(newSensor), Some(newId), ref)
-          case SensorDeclaration(Thermometer(newId)) =>
-            val newSensor = new ThermometerCheck(referenceTemp)
-            State(Some(newSensor), Some(newId), ref)
+          case SensorDeclaration(Hygrometer(sensorName)) =>
+            val newSensor = new HygrometerCheck(sensorName, referenceHum)
+            State(Some(newSensor), ref)
+          case SensorDeclaration(Thermometer(sensorName)) =>
+            val newSensor = new ThermometerCheck(sensorName, referenceTemp)
+            State(Some(newSensor), ref)
           case _ => throw new RuntimeException("Second line must be declare a sensor")
         }
       }
@@ -67,25 +64,25 @@ object SensorCheck {
 
   private def handleRestLines(state: State, line: InputLine) : (State,Option[String]) = {
     state match {
-      case State(Some(sensor), Some(name), ref@Some(Reference(referenceTemp, referenceHum))) =>
+      case State(Some(sensor), ref@Some(Reference(referenceTemp, referenceHum))) =>
         line match {
-          case SensorDeclaration(Thermometer(newId)) =>
-            val newSensor = new ThermometerCheck(referenceTemp)
-            (State(Some(newSensor), Some(newId), ref),
-              Some(name + ": " + sensor.classify))
-          case SensorDeclaration(Hygrometer(newId)) =>
-            val newSensor = new HygrometerCheck(referenceHum)
-            (State(Some(newSensor), Some(newId), ref),
-              Some(name + ": " + sensor.classify))
+          case SensorDeclaration(Thermometer(sensorName)) =>
+            val newSensor = new ThermometerCheck(sensorName, referenceTemp)
+            (State(Some(newSensor), ref),
+              Some(sensor.name + ": " + sensor.classify))
+          case SensorDeclaration(Hygrometer(sensorName)) =>
+            val newSensor = new HygrometerCheck(sensorName, referenceHum)
+            (State(Some(newSensor), ref),
+              Some(sensor.name + ": " + sensor.classify))
           case Reading(_,_,quantity) =>
             sensor.add(quantity)
-            (State(Some(sensor), Some(name), ref), 
+            (State(Some(sensor), ref), 
               None)
           case Eof() =>
-            (State(None, None, ref),
-              Some(name + ": " + sensor.classify))
+            (State(None, ref),
+              Some(sensor.name + ": " + sensor.classify))
           case Unknown(line) =>
-            (State(Some(sensor), Some(name), ref),
+            (State(Some(sensor), ref),
               Some("unknown line: " + line))
         }
     }

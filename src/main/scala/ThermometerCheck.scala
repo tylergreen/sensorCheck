@@ -15,7 +15,7 @@ case object Precise extends ThermometerRating {
   val format = "precise"
 }
 
-class ThermometerCheck(referenceTemperature: Double) extends Sensor {
+class ThermometerCheck(val name : String, referenceTemperature: Double) extends Sensor {
   val mean = new Mean()
   val stdDev = new StandardDeviation()
 

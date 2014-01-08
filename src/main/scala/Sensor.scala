@@ -4,6 +4,7 @@ import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation
 import org.apache.commons.math3.stat.descriptive.moment.Mean
 
 abstract class Sensor{
+  val name : String
   def add(reading: Double) : Unit
   def classify : String
 }
