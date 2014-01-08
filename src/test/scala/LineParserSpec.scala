@@ -12,13 +12,13 @@ class LineParserSpec extends FlatSpec {
   }
 
   it should "parse a thermometer declaration line" in {
-    assertResult(SensorDeclaration(Thermometer("temp-1"))){
+    assertResult(ThermometerDeclaration("temp-1")){
       LineParser.parse("thermometer temp-1")
     }
   }
 
   it should "parse a hygrometer declartion line" in {
-    assertResult(SensorDeclaration(Hygrometer("hum-1"))){
+    assertResult(HygrometerDeclaration("hum-1")){
       LineParser.parse("humidity hum-1")
     }
   }

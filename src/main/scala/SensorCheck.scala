@@ -31,7 +31,7 @@ object SensorCheck {
             output match {
             case Some(result) => eval(setState(newState)).drain ++ emit(result)
             case None => eval(setState(newState)).drain
-          }
+            }
       }
     }
   }
@@ -51,13 +51,13 @@ object SensorCheck {
     state match {
       case State(None, ref@Some(Reference(referenceTemp, referenceHum))) =>
         line match {
-          case SensorDeclaration(Hygrometer(sensorName)) =>
+          case HygrometerDeclaration(sensorName) =>
             val newSensor = new HygrometerCheck(sensorName, referenceHum)
             State(Some(newSensor), ref)
-          case SensorDeclaration(Thermometer(sensorName)) =>
+          case ThermometerDeclaration(sensorName) =>
             val newSensor = new ThermometerCheck(sensorName, referenceTemp)
             State(Some(newSensor), ref)
-          case _ => throw new RuntimeException("Second line must be declare a sensor")
+          case _ => throw new RuntimeException("Second line must declare a sensor")
         }
       }
   }
@@ -66,11 +66,11 @@ object SensorCheck {
     state match {
       case State(Some(sensor), ref@Some(Reference(referenceTemp, referenceHum))) =>
         line match {
-          case SensorDeclaration(Thermometer(sensorName)) =>
+          case ThermometerDeclaration(sensorName) =>
             val newSensor = new ThermometerCheck(sensorName, referenceTemp)
             (State(Some(newSensor), ref),
               Some(sensor.name + ": " + sensor.classify))
-          case SensorDeclaration(Hygrometer(sensorName)) =>
+          case HygrometerDeclaration(sensorName) =>
             val newSensor = new HygrometerCheck(sensorName, referenceHum)
             (State(Some(newSensor), ref),
               Some(sensor.name + ": " + sensor.classify))

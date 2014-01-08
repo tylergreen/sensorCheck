@@ -3,13 +3,10 @@ package com.tyler.sensorCheck
 import scala.util.parsing.combinator._
 import sensorCheck._
 
-abstract class SensorType 
-case class Thermometer(name : String) extends SensorType
-case class Hygrometer(name : String) extends SensorType
-
 abstract class InputLine
 case class Reference(temperature: Double, humidity: Double) extends InputLine
-case class SensorDeclaration(sensor: SensorType) extends InputLine
+case class ThermometerDeclaration(name: String) extends InputLine
+case class HygrometerDeclaration(name: String) extends InputLine
 case class Reading(sensorName: String, time: TimeStamp, quantity: Double) extends InputLine
 case class Unknown(line: String) extends InputLine
 case class Eof() extends InputLine
@@ -28,8 +25,8 @@ object LineParser extends PrimitiveParser {
   }
 
   def sensorDeclaration: Parser[InputLine] = ("thermometer" | "humidity") ~ identifier ^^ { 
-    case "thermometer" ~ sensorId => SensorDeclaration(Thermometer(sensorId))
-    case "humidity" ~ sensorId => SensorDeclaration(Hygrometer(sensorId))
+    case "thermometer" ~ sensorId => ThermometerDeclaration(sensorId)
+    case "humidity" ~ sensorId => HygrometerDeclaration(sensorId)
   }
   
   def reading: Parser[InputLine] = timestamp ~ identifier ~ number ^^ {
