@@ -6,7 +6,7 @@ import scalaz.stream._
 import Process._
 
 object Interpreter {
-  def build[S, I, O](input : Process[Task, I],
+  def transform[S, I, O](input : Process[Task, I],
     initialState : S,
     nextState : (S, I) => (S, Option[O])) : Process[Task, O] = {
 

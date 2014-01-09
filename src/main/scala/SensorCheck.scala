@@ -14,7 +14,7 @@ object SensorCheck {
 
   def checkStream(input: Process[Task, String]) : Process[Task, String] = {
     val parsedStream = input.map(LineParser.parse(_)).append(Process.emit(Eof()).toSource)
-    Interpreter.build(parsedStream, StateTransitions.initialState, StateTransitions.nextState)
+    Interpreter.transform(parsedStream, StateTransitions.initialState, StateTransitions.nextState)
   }
 }
 
