@@ -9,8 +9,9 @@ case class IState(
 object StateTransitions {
 
   val initialState = IState(None, None)
+  type Output = String
 
-  def nextState : (IState, InputLine) => (IState, Option[String]) = {
+  def nextState : (IState, InputLine) => (IState, Option[Output]) = {
     { (state : IState, line: InputLine) =>
       state match {
         case s@IState(None, None) => setReference(s, line)
@@ -20,7 +21,7 @@ object StateTransitions {
     }
   }
 
-  private def setReference(state : IState, line : InputLine) : (IState, Option[String]) = {
+  private def setReference(state : IState, line : InputLine) : (IState, Option[Output]) = {
     state match {
       case IState(None, None) =>
         line match {
@@ -34,7 +35,7 @@ object StateTransitions {
     }
   }
 
-  private def setFirstSensor(state : IState, line : InputLine) : (IState, Option[String]) = {
+  private def setFirstSensor(state : IState, line : InputLine) : (IState, Option[Output]) = {
     state match {
       case IState(None, ref@Some(Reference(referenceTemp, referenceHum))) =>
         line match {
@@ -54,25 +55,25 @@ object StateTransitions {
     }
   }
 
-  private def handleRestLines(state: IState, line: InputLine) : (IState,Option[String]) = {
+  private def handleRestLines(state: IState, line: InputLine) : (IState,Option[Output]) = {
     state match {
       case IState(Some(sensor), ref@Some(Reference(referenceTemp, referenceHum))) =>
         line match {
           case ThermometerDeclaration(sensorName) =>
             val newSensor = new ThermometerCheck(sensorName, referenceTemp)
             (IState(Some(newSensor), ref),
-              Some(sensor.name + ": " + sensor.classify))
+              Some(sensor.classify))
           case HygrometerDeclaration(sensorName) =>
             val newSensor = new HygrometerCheck(sensorName, referenceHum)
             (IState(Some(newSensor), ref),
-              Some(sensor.name + ": " + sensor.classify))
+              Some(sensor.classify))
           case Reading(_,_,quantity) =>
             sensor.add(quantity)
             (IState(Some(sensor), ref), 
               None)
           case Eof() =>
             (IState(None, ref),
-              Some(sensor.name + ": " + sensor.classify))
+              Some(sensor.classify))
           case Unknown(line) =>
             (IState(Some(sensor), ref),
               Some("unknown line: " + line))

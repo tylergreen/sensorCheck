@@ -18,6 +18,6 @@ class HygrometerCheck(val name : String, referenceHumidity : Double) extends Sen
   }
 
   def classify : String = {
-    rating
+    s"$name: $rating"
   }
 }

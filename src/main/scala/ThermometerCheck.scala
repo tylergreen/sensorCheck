@@ -28,8 +28,7 @@ class ThermometerCheck(val name : String, referenceTemperature: Double) extends 
     val tolerance = math.abs(referenceTemperature - mean.getResult)
 
     val stdDevResult = stdDev.getResult
-    if  (tolerance < 0.5 && stdDevResult < 3){
-      //UltraPrecise
+    val rating = if  (tolerance < 0.5 && stdDevResult < 3){
       "ultra precise"
     }
     else if (tolerance < 0.5 && stdDevResult < 5){
@@ -38,5 +37,6 @@ class ThermometerCheck(val name : String, referenceTemperature: Double) extends 
     else {
       "precise"
     }
+    s"$name: $rating"
   }
 }
