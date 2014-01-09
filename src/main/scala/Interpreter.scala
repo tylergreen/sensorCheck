@@ -6,9 +6,9 @@ import scalaz.stream._
 import Process._
 
 object Interpreter {
-  def build[S](input : Process[Task, InputLine],
+  def build[S, I, O](input : Process[Task, I],
     initialState : S,
-    nextState : (S, InputLine) => (S, Option[String])) : Process[Task, String] = {
+    nextState : (S, I) => (S, Option[O])) : Process[Task, O] = {
 
     val s0 = Process.state(initialState)
     input.zip(s0).flatMap { case (inputLine, (getState, setState)) =>
