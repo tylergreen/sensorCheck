@@ -2,19 +2,6 @@ package com.tyler.sensorCheck
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation
 import org.apache.commons.math3.stat.descriptive.moment.Mean
 
-sealed abstract class ThermometerRating{
-  val format : String
-}
-case object UltraPrecise extends ThermometerRating {
-  val format = "ultra precise"
-}
-case object VeryPrecise  extends ThermometerRating {
-  val format = "very precise"
-}
-case object Precise extends ThermometerRating {
-  val format = "precise"
-}
-
 class ThermometerCheck(val name : String, referenceTemperature: Double) extends Sensor {
   val mean = new Mean()
   val stdDev = new StandardDeviation()

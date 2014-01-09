@@ -5,7 +5,7 @@ import com.tyler.sensorCheck._
 class ThermometerCheckSpec extends FlatSpec {
 
   "ThermometerCheck" should "return 'ultra precise' if the mean of the readings is within 0.5 degrees of the known temperature and the std deviation is < 3" in {
-    assertResult(UltraPrecise){
+    assertResult("temp-1: ultra precise"){
       val check = new ThermometerCheck("temp-1", 70)
       check.add(70)
       check.add(70)
@@ -14,7 +14,7 @@ class ThermometerCheckSpec extends FlatSpec {
   }
 
   it should "return 'very precise' if the mean is within 0.5 and the std deviation is < 5" in {
-    assertResult(VeryPrecise){
+    assertResult("temp-1: very precise"){
       val check = new ThermometerCheck("temp-1", 70)
       check.add(70)
       check.add(66)
@@ -24,7 +24,7 @@ class ThermometerCheckSpec extends FlatSpec {
   }
 
   it should "return pecise otherwise" in {
-    assertResult(Precise){
+    assertResult("temp-1: precise"){
       val check = new ThermometerCheck("temp-1", 70)
       check.add(0)
       check.add(1000)
