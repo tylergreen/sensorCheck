@@ -5,11 +5,9 @@ import scalaz._
 import scalaz.stream._
 import Process._
 
-object Interpreter {
-  def transform[S, I, O](input : Process[Task, I],
-    initialState : S,
-    nextState : (S, I) => (S, Option[O])) : Process[Task, O] = {
+class Interpreter[S, I, O](initialState : S, nextState : (S, I) => (S, Option[O])) {
 
+  def transform(input : Process[Task, I]) : Process[Task, O] = {
     val s0 = Process.state(initialState)
     input.zip(s0).flatMap { case (inputLine, (getState, setState)) =>
       val (newState, output) = nextState(getState, inputLine)
