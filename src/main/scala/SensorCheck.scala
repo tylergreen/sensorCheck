@@ -1,28 +1,20 @@
 package com.tyler.sensorCheck
-import com.tyler.sensorCheck.Input
-import com.tyler.sensorCheck.Parser
-import com.tyler.sensorCheck.Sensor
 
-object SensorCheck{
-  def Main(args: Array[String]){
-    println("start")
-    val lines = io.Source.stdin.getLines
-    //var sensorLog = lines.mkString("\n")
-    val parser = new Parser(lines.toArray) //change parser to take an iterator
-    val output = parser.sensors.map(x => x.name + ": " + x.classify)
-    for (ln <- output) println(ln)
+import scalaz.concurrent.Task
+import scalaz._
+import scalaz.stream._
+import Process._
+
+object SensorCheck {
+
+  def main(args: Array[String]){
+    println("SensorCheck running, enter input:")
+    checkStream(io.stdInLines).to(io.stdOutLines).run.run
   }
-  // def checkReadings(
-  //   referenceTemperature : Double,
-  //   referenceHumidity : Double,
-  //   readings : Array[Map[String, String]]){
-  //   readings.map(x => x("header") match {
-  //     case Array("humidity", sensorName) => sensorName + ": " + HygrometerCheck.classify(referenceHumidity, x._2)
-  //     case Array("temperature", sensorName) => sensorName + ": " + ThermometerCheck.classify(referenceTemperature, x._2)
-  //   }
-  //   )
-  // }
+
+  def checkStream(input: Process[Task, String]) : Process[Task, String] = {
+    val parsedStream = input.map(LineParser.parse(_)).append(Process.emit(Eof()).toSource)
+    Interpreter.build(parsedStream, StateTransitions.initialState, StateTransitions.nextState)
+  }
 }
-
-
 
