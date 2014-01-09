@@ -1,6 +1,4 @@
 package com.tyler.sensorCheck
-import com.tyler.sensorCheck.LineParser
-import com.tyler.sensorCheck.Sensor
 
 case class IState(
   currentSensor : Option[Sensor],

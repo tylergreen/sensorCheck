@@ -1,5 +1,4 @@
 package com.tyler.sensorCheck
-import com.tyler.sensorCheck.LineParser
 
 import scalaz.concurrent.Task
 import scalaz._
