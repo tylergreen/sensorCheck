@@ -40,11 +40,11 @@ object StateTransitions {
       case IState(None, ref@Some(Reference(referenceTemp, referenceHum))) =>
         line match {
           case HygrometerDeclaration(sensorName) =>
-            val newSensor = new HygrometerCheck(sensorName, referenceHum)
+            val newSensor = new Hygrometer(sensorName, referenceHum)
             (IState(Some(newSensor), ref),
               None)
           case ThermometerDeclaration(sensorName) =>
-            val newSensor = new ThermometerCheck(sensorName, referenceTemp)
+            val newSensor = new Thermometer(sensorName, referenceTemp)
             (IState(Some(newSensor), ref),
               None)
           case _ =>
@@ -60,11 +60,11 @@ object StateTransitions {
       case IState(Some(sensor), ref@Some(Reference(referenceTemp, referenceHum))) =>
         line match {
           case ThermometerDeclaration(sensorName) =>
-            val newSensor = new ThermometerCheck(sensorName, referenceTemp)
+            val newSensor = new Thermometer(sensorName, referenceTemp)
             (IState(Some(newSensor), ref),
               Some(sensor.classify))
           case HygrometerDeclaration(sensorName) =>
-            val newSensor = new HygrometerCheck(sensorName, referenceHum)
+            val newSensor = new Hygrometer(sensorName, referenceHum)
             (IState(Some(newSensor), ref),
               Some(sensor.classify))
           case Reading(_,_,quantity) =>

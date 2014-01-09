@@ -2,7 +2,7 @@ package com.tyler.sensorCheck
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation
 import org.apache.commons.math3.stat.descriptive.moment.Mean
 
-class ThermometerCheck(val name : String, referenceTemperature: Double) extends Sensor {
+class Thermometer(val name : String, referenceTemperature: Double) extends Sensor {
   val mean = new Mean()
   val stdDev = new StandardDeviation()
 
