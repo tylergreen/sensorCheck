@@ -9,8 +9,8 @@ import Process._
 
 object Interpreter {
   def build(input : Process[Task, InputLine],
-    initialState : MyState,
-    nextState : (MyState, InputLine) => (MyState, Option[String])) : Process[Task, String] = {
+    initialState : IState,
+    nextState : (IState, InputLine) => (IState, Option[String])) : Process[Task, String] = {
 
     val s0 = Process.state(initialState)
     input.zip(s0).flatMap { case (inputLine, (getState, setState)) =>
