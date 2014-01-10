@@ -1,81 +1,77 @@
 package com.tyler.sensorCheck
 
-case class IState(
-  currentSensor : Option[Sensor],
-  reference : Option[Reference])
+abstract class IState
+case class StartState extends IState
+case class NeedSensor(reference: Reference) extends IState
+case class Processing(currentSensor : Sensor, reference: Reference) extends IState
 
 object StateTransitions {
-
-  val initialState = IState(None, None)
   type Output = String
+
+  val initialState = StartState()
 
   def nextState : (IState, InputLine) => (IState, Option[Output]) = {
     { (state : IState, line: InputLine) =>
       state match {
-        case s@IState(None, None) => setReference(s, line)
-        case s@IState(None, Some(_)) => setFirstSensor(s,line)
-        case s@IState(Some(_), Some(_)) => handleRestLines(s, line)
+        case StartState() => setReference(line)
+        case NeedSensor(reference) => setFirstSensor(reference, line)
+        case Processing(sensor, reference) => processLine(reference, sensor, line)
       }
     }
   }
 
-  private def setReference(state : IState, line : InputLine) : (IState, Option[Output]) = {
-    state match {
-      case IState(None, None) =>
-        line match {
-          case r@Reference(referenceTemperature, referenceHumidity) =>
-            (IState(None, Some(r)),
-              None)
-          case _ =>
-            (IState(None, None),
-              Some("Error: First Line must be reference"))
-          }
+  private def setReference(line : InputLine) : (IState, Option[Output]) = {
+    line match {
+      case r@Reference(referenceTemperature, referenceHumidity) =>
+        (NeedSensor(r),
+          None)
+      case _ =>
+        (StartState(),
+          Some("Error: First Line must be reference"))
     }
   }
 
-  private def setFirstSensor(state : IState, line : InputLine) : (IState, Option[Output]) = {
-    state match {
-      case IState(None, ref@Some(Reference(referenceTemp, referenceHum))) =>
-        line match {
-          case HygrometerDeclaration(sensorName) =>
-            val newSensor = new Hygrometer(sensorName, referenceHum)
-            (IState(Some(newSensor), ref),
-              None)
-          case ThermometerDeclaration(sensorName) =>
-            val newSensor = new Thermometer(sensorName, referenceTemp)
-            (IState(Some(newSensor), ref),
-              None)
-          case _ =>
-            (IState(None, ref),
-              Some("Error: Second Line must be a sensor declaration ")
-            )
-        }
+  private def setFirstSensor(reference : Reference, line : InputLine) : (IState, Option[Output]) = {
+    line match {
+      case HygrometerDeclaration(sensorName) =>
+        val newSensor = new Hygrometer(sensorName, reference.humidity)
+        (Processing(newSensor, reference),
+          None)
+      case ThermometerDeclaration(sensorName) =>
+        val newSensor = new Thermometer(sensorName, reference.temperature)
+        (Processing(newSensor, reference),
+          None)
+      case _ =>
+        (NeedSensor(reference),
+          Some("Error: Second Line must be a sensor declaration ")
+        )
     }
   }
 
-  private def handleRestLines(state: IState, line: InputLine) : (IState,Option[Output]) = {
-    state match {
-      case IState(Some(sensor), ref@Some(Reference(referenceTemp, referenceHum))) =>
-        line match {
-          case ThermometerDeclaration(sensorName) =>
-            val newSensor = new Thermometer(sensorName, referenceTemp)
-            (IState(Some(newSensor), ref),
-              Some(sensor.classify))
-          case HygrometerDeclaration(sensorName) =>
-            val newSensor = new Hygrometer(sensorName, referenceHum)
-            (IState(Some(newSensor), ref),
-              Some(sensor.classify))
-          case Reading(_,_,quantity) =>
-            sensor.add(quantity)
-            (IState(Some(sensor), ref), 
-              None)
-          case Eof() =>
-            (IState(None, ref),
-              Some(sensor.classify))
-          case Unknown(line) =>
-            (IState(Some(sensor), ref),
-              Some("unknown line: " + line))
-        }
+
+  private def processLine(
+    reference : Reference,
+    sensor : Sensor,
+    line: InputLine) : (IState,Option[Output]) = {
+    line match {
+      case ThermometerDeclaration(sensorName) =>
+        val newSensor = new Thermometer(sensorName, reference.temperature)
+        (Processing(newSensor, reference),
+          Some(sensor.classify))
+      case HygrometerDeclaration(sensorName) =>
+        val newSensor = new Hygrometer(sensorName, reference.humidity)
+        (Processing(newSensor, reference),
+          Some(sensor.classify))
+      case Reading(_,_,quantity) =>
+        sensor.add(quantity)
+        (Processing(sensor, reference),
+          None)
+      case Eof() =>
+        (StartState(),
+          Some(sensor.classify))
+      case Unknown(line) =>
+        (Processing(sensor, reference),
+          Some("unknown line: " + line))
     }
   }
 }
