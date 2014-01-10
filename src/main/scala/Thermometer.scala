@@ -13,8 +13,8 @@ class Thermometer(val name : String, referenceTemperature: Double) extends Senso
 
   def classify: String = {
     val tolerance = math.abs(referenceTemperature - mean.getResult)
-
     val stdDevResult = stdDev.getResult
+
     val rating = if  (tolerance < 0.5 && stdDevResult < 3){
       "ultra precise"
     }
