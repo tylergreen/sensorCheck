@@ -3,8 +3,8 @@ import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation
 import org.apache.commons.math3.stat.descriptive.moment.Mean
 
 class Thermometer(val name : String, referenceTemperature: Double) extends Sensor {
-  val mean = new Mean()
-  val stdDev = new StandardDeviation()
+  private val mean = new Mean()
+  private val stdDev = new StandardDeviation()
 
   def addSample(reading : Double){
     mean.increment(reading)
