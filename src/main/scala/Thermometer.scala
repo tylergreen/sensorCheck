@@ -6,7 +6,7 @@ class Thermometer(val name : String, referenceTemperature: Double) extends Senso
   val mean = new Mean()
   val stdDev = new StandardDeviation()
 
-  def add(reading : Double){
+  def addSample(reading : Double){
     mean.increment(reading)
     stdDev.increment(reading)
   }

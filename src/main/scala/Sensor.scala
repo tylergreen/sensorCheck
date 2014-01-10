@@ -2,7 +2,7 @@ package com.tyler.sensorCheck
 
 abstract class Sensor{
   val name : String
-  def add(reading: Double) : Unit
+  def addSample(reading: Double) : Unit
   def classify : String
 }
 

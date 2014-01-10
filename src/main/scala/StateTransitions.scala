@@ -48,7 +48,6 @@ object StateTransitions {
     }
   }
 
-
   private def processLine(
     reference : Reference,
     sensor : Sensor,
@@ -63,7 +62,7 @@ object StateTransitions {
         (Processing(newSensor, reference),
           Some(sensor.classify))
       case Reading(_,_,quantity) =>
-        sensor.add(quantity)
+        sensor.addSample(quantity)
         (Processing(sensor, reference),
           None)
       case Eof() =>
