@@ -1,5 +1,5 @@
 package com.tyler.sensorCheck
-
+import sensorCheck._
 import scalaz.concurrent.Task
 import scalaz._
 import scalaz.stream._
@@ -9,13 +9,20 @@ object SensorCheck {
 
   def main(args: Array[String]){
     println("SensorCheck running, enter input:")
-    checkStream(io.stdInLines).to(io.stdOutLines).run.run
+    checkStream(io.stdInLines).map(formatOutput(_)).to(io.stdOutLines).run.run
   }
 
-  def checkStream(input: Process[Task, String]) : Process[Task, String] = {
+  def checkStream(input: Process[Task, String]) : Process[Task, Output] = {
     val parsedStream = input.map(LineParser.parse(_)).append(Process.emit(Eof()).toSource)
     val i = new Interpreter(StateTransitions.initialState, StateTransitions.nextState)
     i.transform(parsedStream)
+  }
+
+  def formatOutput(output : Output) : String = {
+    output match {
+      case Left(errorMsg) => errorMsg
+      case Right((sensorName, sensorRating)) => s"$sensorName: ${sensorRating.format}"
+    }
   }
 }
 

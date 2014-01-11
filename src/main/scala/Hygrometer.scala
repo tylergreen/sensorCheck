@@ -1,13 +1,23 @@
 package com.tyler.sensorCheck
 
+sealed abstract class HygrometerRating extends SensorRating
+case class Ok extends HygrometerRating {
+  val format = "OK"
+}
+case class Discard extends HygrometerRating {
+  val format = "discard"
+}
+
 class Hygrometer(val name : String, referenceHumidity : Double) extends Sensor { 
-  private var rating : String = "OK"
+  private var rating : SensorRating = Untested()
   def addSample(reading : Double) {
     if (math.abs(reading - referenceHumidity) >= 1)
-      rating = "discard"
+      rating = Discard()
+    else if(rating == Untested())
+      rating = Ok()
   }
 
-  def classify : String = {
-    s"$name: $rating"
+  def classify : SensorRating = {
+    rating
   }
 }

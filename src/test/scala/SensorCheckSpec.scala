@@ -24,7 +24,7 @@ thermometer temp-1
 2007-04-05T22:01 temp-1 70.0
 """)
     assertResult(List("temp-1: ultra precise")){
-      SensorCheck.checkStream(testInput).runLog.run.toList
+      SensorCheck.checkStream(testInput).map(SensorCheck.formatOutput(_)).runLog.run.toList
     }
   }
 

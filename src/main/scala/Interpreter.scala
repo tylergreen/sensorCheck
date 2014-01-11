@@ -20,7 +20,8 @@ import Process._
 class Interpreter[S, I, O](initialState : S, nextState : (S, I) => (S, Option[O])) {
 
   def transform(inputStream : Process[Task, I]) : Process[Task, O] = {
-    inputStream.zip(Process.state(initialState)).flatMap { case (element, (getState, setState)) =>
+    val startState = Process.state(initialState) 
+    inputStream.zip(startState).flatMap { case (element, (getState, setState)) =>
       val (newState, output) = nextState(getState, element)
       output match {
         case Some(output) => eval(setState(newState)).drain ++ emit(output)
