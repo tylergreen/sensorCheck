@@ -29,7 +29,7 @@ object StateTransitions {
           None)
       case _ =>
         (StartState(),
-          Some(ErrorMsg("Error: First Line must be reference")))
+          Some(Left("Error: First Line must be reference")))
     }
   }
 
@@ -45,7 +45,7 @@ object StateTransitions {
           None)
       case _ =>
         (NeedSensor(reference),
-          Some(ErrorMsg("Error: Second Line must be a sensor declaration "))
+          Some(Left("Error: Second Line must be a sensor declaration "))
         )
     }
   }
@@ -62,7 +62,7 @@ object StateTransitions {
           None)
       case Unknown(line) =>
         (SkipToNextSensor(reference),
-          Some(ErrorMsg("unknown line: " + line)))
+          Some(Left("unknown line: " + line)))
       case _ =>
         (SkipToNextSensor(reference),
           None)
@@ -77,27 +77,27 @@ object StateTransitions {
       case ThermometerDeclaration(sensorName) =>
         val newSensor = new Thermometer(sensorName, reference.temperature)
         (EvaluatingSensor(newSensor, reference),
-          Some(Rating(sensor.name, sensor.classify)))
+          Some(Right(sensor.name, sensor.classify)))
       case HygrometerDeclaration(sensorName) =>
         val newSensor = new Hygrometer(sensorName, reference.humidity)
         (EvaluatingSensor(newSensor, reference),
-          Some(Rating(sensor.name, sensor.classify)))
+          Some(Right(sensor.name, sensor.classify)))
       case Reading(_,_,quantity) =>
         sensor.addSample(quantity)
         sensor.classify match {
           case Discard() =>
             (SkipToNextSensor(reference),
-              Some(Rating(sensor.name, sensor.classify)))
+              Some(Right(sensor.name, sensor.classify)))
           case _ =>
             (EvaluatingSensor(sensor, reference),
               None)
         }
       case Eof() =>
         (StartState(),
-          Some(Rating(sensor.name, sensor.classify)))
+          Some(Right(sensor.name, sensor.classify)))
       case Unknown(line) =>
         (EvaluatingSensor(sensor, reference),
-          Some(ErrorMsg("unknown line: " + line)))
+          Some(Left("unknown line: " + line)))
     }
   }
 }

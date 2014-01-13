@@ -19,7 +19,7 @@ object SensorCheck {
   }
 
   def checkString(input: String) : List[String] = {
-    checkStream(Process.emitAll(input.split('\n'))).map(_.toString).runLog.run.toList
+    checkStream(Process.emitAll(input.split('\n'))).map(Printer.print(_)).runLog.run.toList
   }
 
 }
