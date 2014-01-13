@@ -12,104 +12,101 @@ import scalaz.stream._
 import Process._
 
 class SensorCheckSpec extends FlatSpec {
-  def streamLines(input : String) : Process[Task, String] = {
-    Process.emitAll(input.split('\n'))
-  }
 
   "SensorCheck" should "classify 'ultra precise' thermometers" in {
     val testInput = 
-      streamLines("""reference 70.0 45.0
+      """reference 70.0 45.0
 thermometer temp-1
 2007-04-05T22:00 temp-1 70.0
 2007-04-05T22:01 temp-1 70.0
-""")
+"""
     assertResult(List("temp-1: ultra precise")){
-      SensorCheck.checkStream(testInput).map(SensorCheck.formatOutput(_)).runLog.run.toList
+      SensorCheck.checkString(testInput)
     }
   }
 
   it should "classify 'very precise' thermometers" in {
     val testInput =
-      streamLines("""reference 70.0 45.0
+      """reference 70.0 45.0
 thermometer temp-1
 2007-04-05T22:00 temp-1 70.0
 2007-04-05T22:01 temp-1 66.0
 2007-04-05T22:02 temp-1 74.0
-""")
+"""
     assertResult(List("temp-1: very precise")){
-      SensorCheck.checkStream(testInput).runLog.run.toList
+      SensorCheck.checkString(testInput)
     }
   }
 
   it should "classify 'precise' thermometers" in {
     val testInput = 
-      streamLines("""reference 70.0 45.0
+      """reference 70.0 45.0
 thermometer temp-1
 2007-04-05T22:00 temp-1 1000.0
 2007-04-05T22:02 temp-1 70.0
 2007-04-05T22:02 temp-1 20.0
-""")
+"""
     assertResult(List("temp-1: precise")){
-      SensorCheck.checkStream(testInput).runLog.run.toList
+      SensorCheck.checkString(testInput)
     }
   }
 
   it should "classify multiple thermometers" in {
     val testInput = 
-      streamLines("""reference 70.0 45.0
+      """reference 70.0 45.0
 thermometer temp-1
 2007-04-05T22:00 temp-1 1000.0
 thermometer temp-2
 2007-04-05T22:02 temp-2 0.0
 thermometer temp-3
 2007-04-05T22:02 temp-3 20.0
-""")
+"""
     assertResult(List("temp-1: precise", "temp-2: precise", "temp-3: precise")){
-      SensorCheck.checkStream(testInput).runLog.run.toList
+      SensorCheck.checkString(testInput)
     }
   }
 
   it should "classify 'ok' hygrometers" in {
        val testInput = 
-     streamLines("""reference 70.0 45.0
+     """reference 70.0 45.0
 humidity hum-1
 2007-04-05T22:04 hum-1 45.2
 2007-04-05T22:05 hum-1 45.3
 2007-04-05T22:06 hum-1 45.1
-""")
+"""
     assertResult(List("hum-1: OK")){
-      SensorCheck.checkStream(testInput).runLog.run.toList
+      SensorCheck.checkString(testInput)
     }
   }
 
 it should "classify 'discard' hygrometers" in {
        val testInput = 
-      streamLines("""reference 70.0 45.0
+      """reference 70.0 45.0
 humidity hum-2
 2007-04-05T22:04 hum-2 44.4
 2007-04-05T22:08 hum-2 42.1
-""")
+"""
     assertResult(List("hum-2: discard")){
-      SensorCheck.checkStream(testInput).runLog.run.toList
+      SensorCheck.checkString(testInput)
     }
   }
 
 it should "classify multiple sensors" in {
     val testInput = 
-      streamLines("""reference 70.0 45.0
+      """reference 70.0 45.0
 thermometer temp-2
 2007-04-05T22:02 temp-2 70.1
 humidity hum-1
 2007-04-05T22:04 hum-1 45.2
-""")
+"""
   assertResult(List("temp-2: ultra precise", "hum-1: OK")){
-    SensorCheck.checkStream(testInput).runLog.run.toList
+    SensorCheck.checkString(testInput)
   }
 }
 
   it should "classify the spec input" in {
 val testInput =
-streamLines("""reference 70.0 45.0
+"""reference 70.0 45.0
 thermometer temp-1
 2007-04-05T22:00 temp-1 72.4
 2007-04-05T22:01 temp-1 76.0
@@ -139,9 +136,9 @@ humidity hum-2
 2007-04-05T22:05 hum-2 43.9
 2007-04-05T22:06 hum-2 44.9
 2007-04-05T22:07 hum-2 43.8
-2007-04-05T22:08 hum-2 42.1""")
+2007-04-05T22:08 hum-2 42.1"""
     assertResult(List("temp-1: precise", "temp-2: ultra precise", "hum-1: OK", "hum-2: discard")){
-      SensorCheck.checkStream(testInput).runLog.run.toList
+      SensorCheck.checkString(testInput)
     }
   }
 }

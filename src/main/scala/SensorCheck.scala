@@ -9,7 +9,7 @@ object SensorCheck {
 
   def main(args: Array[String]){
     println("SensorCheck running, enter input:")
-    checkStream(io.stdInLines).map(formatOutput(_)).to(io.stdOutLines).run.run
+    checkStream(io.stdInLines).map(_.toString).to(io.stdOutLines).run.run
   }
 
   def checkStream(input: Process[Task, String]) : Process[Task, Output] = {
@@ -18,11 +18,10 @@ object SensorCheck {
     i.transform(parsedStream)
   }
 
-  def formatOutput(output : Output) : String = {
-    output match {
-      case Left(errorMsg) => errorMsg
-      case Right((sensorName, sensorRating)) => s"$sensorName: ${sensorRating.format}"
-    }
+  def checkString(input: String) : List[String] = {
+    checkStream(Process.emitAll(input.split('\n'))).map(_.toString).runLog.run.toList
   }
+
 }
+
 

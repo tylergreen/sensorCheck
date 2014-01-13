@@ -1,11 +1,7 @@
 package com.tyler.sensorCheck
 
-abstract class SensorRating{
-  val format : String
-}
-case class Untested extends SensorRating{
-  val format = "untested"
-}
+abstract class SensorRating
+case class Untested extends SensorRating
 
 abstract class Sensor{
   val name : String

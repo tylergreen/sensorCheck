@@ -1,12 +1,8 @@
 package com.tyler.sensorCheck
 
 sealed abstract class HygrometerRating extends SensorRating
-case class Ok extends HygrometerRating {
-  val format = "OK"
-}
-case class Discard extends HygrometerRating {
-  val format = "discard"
-}
+case class Ok extends HygrometerRating 
+case class Discard extends HygrometerRating 
 
 class Hygrometer(val name : String, referenceHumidity : Double) extends Sensor { 
   private var rating : SensorRating = Untested()
