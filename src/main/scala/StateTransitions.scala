@@ -84,8 +84,14 @@ object StateTransitions {
           Some(Rating(sensor.name, sensor.classify)))
       case Reading(_,_,quantity) =>
         sensor.addSample(quantity)
-        (EvaluatingSensor(sensor, reference),
-          None)
+        sensor.classify match {
+          case Discard() =>
+            (SkipToNextSensor(reference),
+              Some(Rating(sensor.name, sensor.classify)))
+          case _ =>
+            (EvaluatingSensor(sensor, reference),
+              None)
+        }
       case Eof() =>
         (StartState(),
           Some(Rating(sensor.name, sensor.classify)))
