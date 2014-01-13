@@ -1,12 +1,13 @@
 package com.tyler.sensorCheck
+import sensorCheck._
 
 abstract class IState
 case class StartState extends IState
 case class NeedSensor(reference: Reference) extends IState
-case class Processing(currentSensor : Sensor, reference: Reference) extends IState
+case class EvaluatingSensor(currentSensor : Sensor, reference: Reference) extends IState
+case class SkipToNextSensor(reference: Reference) extends IState
 
 object StateTransitions {
-  type Output = String
 
   val initialState = StartState()
 
@@ -15,7 +16,8 @@ object StateTransitions {
       state match {
         case StartState() => setReference(line)
         case NeedSensor(reference) => setFirstSensor(reference, line)
-        case Processing(sensor, reference) => processLine(reference, sensor, line)
+        case EvaluatingSensor(sensor, reference) => continueEvaluation(reference, sensor, line)
+        case SkipToNextSensor(reference) => skipToNextSensor(reference, line)
       }
     }
   }
@@ -27,7 +29,7 @@ object StateTransitions {
           None)
       case _ =>
         (StartState(),
-          Some("Error: First Line must be reference"))
+          Some(Left("Error: First Line must be reference")))
     }
   }
 
@@ -35,42 +37,67 @@ object StateTransitions {
     line match {
       case HygrometerDeclaration(sensorName) =>
         val newSensor = new Hygrometer(sensorName, reference.humidity)
-        (Processing(newSensor, reference),
+        (EvaluatingSensor(newSensor, reference),
           None)
       case ThermometerDeclaration(sensorName) =>
         val newSensor = new Thermometer(sensorName, reference.temperature)
-        (Processing(newSensor, reference),
+        (EvaluatingSensor(newSensor, reference),
           None)
       case _ =>
         (NeedSensor(reference),
-          Some("Error: Second Line must be a sensor declaration ")
+          Some(Left("Error: Second Line must be a sensor declaration "))
         )
     }
   }
 
-  private def processLine(
+  private def skipToNextSensor(reference: Reference, line: InputLine) : (IState, Option[Output]) = {
+    line match {
+      case HygrometerDeclaration(sensorName) =>
+        val newSensor = new Hygrometer(sensorName, reference.humidity)
+        (EvaluatingSensor(newSensor, reference),
+          None)
+      case ThermometerDeclaration(sensorName) =>
+        val newSensor = new Thermometer(sensorName, reference.temperature)
+        (EvaluatingSensor(newSensor, reference),
+          None)
+      case Unknown(line) =>
+        (SkipToNextSensor(reference),
+          Some(Left("unknown line: " + line)))
+      case _ =>
+        (SkipToNextSensor(reference),
+          None)
+    }
+  }
+
+  private def continueEvaluation(
     reference : Reference,
     sensor : Sensor,
     line: InputLine) : (IState,Option[Output]) = {
     line match {
       case ThermometerDeclaration(sensorName) =>
         val newSensor = new Thermometer(sensorName, reference.temperature)
-        (Processing(newSensor, reference),
-          Some(sensor.classify))
+        (EvaluatingSensor(newSensor, reference),
+          Some(Right(sensor.name, sensor.classify)))
       case HygrometerDeclaration(sensorName) =>
         val newSensor = new Hygrometer(sensorName, reference.humidity)
-        (Processing(newSensor, reference),
-          Some(sensor.classify))
+        (EvaluatingSensor(newSensor, reference),
+          Some(Right(sensor.name, sensor.classify)))
       case Reading(_,_,quantity) =>
         sensor.addSample(quantity)
-        (Processing(sensor, reference),
-          None)
+        sensor.classify match {
+          case Discard() =>
+            (SkipToNextSensor(reference),
+              Some(Right(sensor.name, sensor.classify)))
+          case _ =>
+            (EvaluatingSensor(sensor, reference),
+              None)
+        }
       case Eof() =>
         (StartState(),
-          Some(sensor.classify))
+          Some(Right(sensor.name, sensor.classify)))
       case Unknown(line) =>
-        (Processing(sensor, reference),
-          Some("unknown line: " + line))
+        (EvaluatingSensor(sensor, reference),
+          Some(Left("unknown line: " + line)))
     }
   }
 }

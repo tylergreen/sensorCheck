@@ -12,11 +12,18 @@ $ sbt run < ./testInput.txt
 
 $ sbt test
 
-* Caveats
-- The program does necessarily print out the sensors in the same
-order they were read.  This is due to scala's
-groupBy method not preserving order.  This behavior could be fixed
-given some development time.
+* Project Overview
 
-- When reading from stdin, the program currently waits until it
-  reaches end-of-file to before it starts processing.  
+- SensorCheck := high-level interface
+- LineParser := parser utilizing scala's parser combinators
+- StateTransitions := the set of states and state transisitions
+- Interpreter := low-level, scalaz-stream style processor that drives the state transitions
+- Printer := converts output data to strings
+- Hygrometer := models hygrometer (humidity sensor) evaluation
+- Thermometer := models thermometer evaluation
+
+* FAQ
+
+What is different in version 2?
+
+
