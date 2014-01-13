@@ -9,7 +9,7 @@ object SensorCheck {
 
   def main(args: Array[String]){
     println("SensorCheck running, enter input:")
-    checkStream(io.stdInLines).map(_.toString).to(io.stdOutLines).run.run
+    checkStream(io.stdInLines).map(Printer.print(_)).to(io.stdOutLines).run.run
   }
 
   def checkStream(input: Process[Task, String]) : Process[Task, Output] = {
