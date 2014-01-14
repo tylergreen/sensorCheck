@@ -3,14 +3,6 @@ package com.tyler.sensorCheck
 import scala.util.parsing.combinator._
 import sensorCheck._
 
-abstract class InputLine
-case class Reference(temperature: Double, humidity: Double) extends InputLine
-case class ThermometerDeclaration(name: String) extends InputLine
-case class HygrometerDeclaration(name: String) extends InputLine
-case class Reading(sensorName: String, time: TimeStamp, quantity: Double) extends InputLine
-case class Unknown(line: String) extends InputLine
-case class Eof() extends InputLine
-
 class PrimitiveParser extends RegexParsers {
   def number: Parser[Double] = """\d+(\.\d*)?""".r ^^ { _.toDouble }
   def date: Parser[String] = """\d{4}\-\d{2}\-\d{2}""".r ^^ { _.toString }
